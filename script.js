@@ -13,7 +13,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// --- የተጨመረ: ፓስወርድን ሃሽ (Hash) ማድረጊያ ፈንክሽን ---
+// --- ፓስወርድን ሃሽ (Hash) ማድረጊያ ፈንክሽን ---
 async function hashPassword(password) {
     const encoder = new TextEncoder();
     const data = encoder.encode(password);
@@ -21,7 +21,6 @@ async function hashPassword(password) {
     const hashArray = Array.from(new Uint8Array(hashBuffer));
     return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 }
-// --------------------------------------------------------
 
 const packagesData = {
     1: { id: "Ascent", priceValue: 9000, 
@@ -63,24 +62,20 @@ const homePage = document.getElementById('page-home'); const packagesPage = docu
 const typedTextSpan = homePage.querySelector(".typed-text"); const typingContainer = homePage.querySelector(".typing-container");
 const exploreBtn = document.getElementById('explore-btn'); const themeToggle = document.getElementById('theme-toggle'); const langToggle = document.getElementById('lang-toggle'); const detailsContainer = document.getElementById('details-container');
 
-// Basic Modals
+// Modals
 const aboutNavBtn = document.getElementById('about-nav-btn'), aboutModal = document.getElementById('about-modal'), closeAboutBtn = document.getElementById('close-about');
 const faqNavBtn = document.getElementById('faq-nav-btn'), faqModal = document.getElementById('faq-modal'), closeFaqBtn = document.getElementById('close-faq');
 const contactBtn = document.getElementById('contact-btn'), contactModal = document.getElementById('contact-modal'), closeContactBtn = document.getElementById('close-contact');
-
-// Profile Modals
 const supportModal = document.getElementById('support-modal'), closeSupportBtn = document.getElementById('close-support'), btnOpenSupport = document.getElementById('btn-open-support');
 const historyModal = document.getElementById('history-modal'), closeHistoryBtn = document.getElementById('close-history'), btnOpenHistory = document.getElementById('btn-open-history'), historyList = document.getElementById('history-list');
 const settingsModal = document.getElementById('settings-modal'), closeSettingsBtn = document.getElementById('close-settings'), btnOpenSettings = document.getElementById('btn-open-settings');
 const contractsModal = document.getElementById('contracts-modal'), closeContractsBtn = document.getElementById('close-contracts'), btnOpenContracts = document.getElementById('btn-open-contracts');
-
-// Social & Iframe Modals
 const socialChoiceModal = document.getElementById('social-choice-modal'), closeSocialChoice = document.getElementById('close-social-choice');
 const socialInApp = document.getElementById('social-in-app'), socialExternal = document.getElementById('social-external');
 const socialIframeModal = document.getElementById('social-iframe-modal'), closeSocialIframe = document.getElementById('close-social-iframe'), socialIframe = document.getElementById('social-iframe');
 let tempSocialUrl = "";
 
-// Auth & Success Modals
+// Auth Modals
 const profileTriggerBtn = document.getElementById('profile-trigger-btn'), authModal = document.getElementById('auth-modal'), closeAuthBtn = document.getElementById('close-auth');
 const authStep0 = document.getElementById('auth-step-0'), authStepLogin = document.getElementById('auth-step-login'), authStepRegister = document.getElementById('auth-step-register'), authStep2 = document.getElementById('auth-step-2'), authStep3 = document.getElementById('auth-step-3');
 const chooseLoginBtn = document.getElementById('choose-login-btn'), chooseRegisterBtn = document.getElementById('choose-register-btn');
@@ -90,12 +85,10 @@ const logoutBtn = document.getElementById('logout-btn');
 const regSuccessModal = document.getElementById('reg-success-modal'), closeRegSuccess = document.getElementById('close-reg-success'), continueFromReg = document.getElementById('continue-from-reg');
 const contractSuccessModal = document.getElementById('contract-success-modal'), closeContractSuccessBtn = document.getElementById('close-contract-success'), downloadPdfBtn = document.getElementById('download-pdf-btn');
 
-// Terms Additions
 const inlineTermsContent = document.getElementById('inline-terms-content'), openTermsLink = document.getElementById('open-terms-link'), termsCheckbox = document.getElementById('terms-checkbox'), finishRegBtn = document.getElementById('finish-reg-btn');
 
 window.goToHome = goToHome; window.goToPackages = goToPackages; window.showDetails = showDetails;
 
-// Terms Interaction
 openTermsLink.addEventListener('click', (e) => { e.preventDefault(); inlineTermsContent.classList.toggle('hidden'); });
 termsCheckbox.addEventListener('change', (e) => { 
     finishRegBtn.disabled = !e.target.checked; 
@@ -103,75 +96,101 @@ termsCheckbox.addEventListener('change', (e) => {
     finishRegBtn.style.cursor = e.target.checked ? "pointer" : "not-allowed";
 });
 
-// Typing Animation
-let textToType = "";
-let charIndex = 0;
-let typingTimeout;
-
-function type() { 
-    if (charIndex < textToType.length) {
-        typedTextSpan.textContent += textToType.charAt(charIndex);
-        charIndex++; 
-        typingTimeout = setTimeout(type, 100); 
-    }
-}
-
-function startTyping() { 
-    clearTimeout(typingTimeout);
-    textToType = typingContainer.getAttribute(`data-${currentLang}`);
-    typedTextSpan.textContent = ""; 
-    charIndex = 0; 
-    typingTimeout = setTimeout(type, 500); 
-}
-
+let textToType = ""; let charIndex = 0; let typingTimeout;
+function type() { if (charIndex < textToType.length) { typedTextSpan.textContent += textToType.charAt(charIndex); charIndex++; typingTimeout = setTimeout(type, 100); } }
+function startTyping() { clearTimeout(typingTimeout); textToType = typingContainer.getAttribute(`data-${currentLang}`); typedTextSpan.textContent = ""; charIndex = 0; typingTimeout = setTimeout(type, 500); }
 function hideAllPages() { document.querySelectorAll('.page').forEach(page => page.classList.remove('active')); document.querySelectorAll('#page-packages .sequential, #page-packages .packages-title').forEach(el => { el.style.animation = 'none'; el.style.opacity = '0'; }); }
 function goToHome() { hideAllPages(); homePage.classList.add('active'); startTyping(); }
 function goToPackages() { hideAllPages(); packagesPage.classList.add('active'); document.querySelectorAll('#page-packages .sequential, #page-packages .packages-title').forEach((el, index) => { el.style.setProperty('--card-order', index); el.style.animation = 'popUp 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards'; }); }
 function showDetails(id) { currentOpenDetail = id; currentSelectedAddonPrice = 0; currentSelectedAddonName = ""; currentSelectedAddonDays = 0; hideAllPages(); detailsPage.classList.add('active'); renderDetails(); }
-
 function showAuthModal() { authModal.classList.remove('hidden'); authStep0.classList.remove('hidden'); authStepLogin.classList.add('hidden'); authStepRegister.classList.add('hidden'); authStep2.classList.add('hidden'); authStep3.classList.add('hidden'); }
 
 profileTriggerBtn.addEventListener('click', () => { if (isLoggedIn) { hideAllPages(); profilePage.classList.add('active'); updateLanguage(); } else { showAuthModal(); } });
 closeAuthBtn.addEventListener('click', () => { authModal.classList.add('hidden'); }); chooseLoginBtn.addEventListener('click', () => { authStep0.classList.add('hidden'); authStepLogin.classList.remove('hidden'); }); chooseRegisterBtn.addEventListener('click', () => { authStep0.classList.add('hidden'); authStepRegister.classList.remove('hidden'); });
 backToAuth1.addEventListener('click', showAuthModal); backToAuth2.addEventListener('click', showAuthModal);
 
-// Login (የፓስወርድ ማመሳከሪያ ተስተካክሏል)
+// ----------------------------------------------------------------------
+// 1. የ Login ጥብቅነት (Strict Login Verification)
+// ----------------------------------------------------------------------
 loginForm.addEventListener('submit', async (e) => {
-    e.preventDefault(); const email = document.getElementById('login-email').value; const pwd = document.getElementById('login-password').value;
+    e.preventDefault(); 
+    const email = document.getElementById('login-email').value; 
+    const pwd = document.getElementById('login-password').value;
     try {
         const docSnap = await getDoc(doc(db, "users", email));
-        if (docSnap.exists()) {
-            const data = docSnap.data();
-            const hashedInputPwd = await hashPassword(pwd);
-            if (data.password && data.password !== hashedInputPwd) { alert("Incorrect Password"); return; }
-            userProfile = { email: email, ...data };
-            if(!userProfile.payments) userProfile.payments = [];
-            if(!userProfile.apexId) userProfile.apexId = "APEX-GUEST";
-            isLoggedIn = true; updateProfileUI(); authModal.classList.add('hidden');
-            if(detailsPage.classList.contains('active')) renderDetails();
-        } else { alert("User not found. Please register."); }
-    } catch (err) { console.error(err); }
+        if (!docSnap.exists()) { 
+            alert(currentLang === 'en' ? "User not found. Please register." : "የተጠቃሚ መለያ አልተገኘም! እባክዎ ይመዝገቡ።"); 
+            return; 
+        }
+        
+        const data = docSnap.data();
+        const hashedInputPwd = await hashPassword(pwd);
+        
+        // የተሳሳተ ፓስወርድ በጥብቅ ሲከለከል
+        if (data.password !== hashedInputPwd) { 
+            alert(currentLang === 'en' ? "Incorrect Password!" : "የተሳሳተ የይለፍ ቃል!"); 
+            return; 
+        }
+        
+        userProfile = { email: email, ...data };
+        if(!userProfile.payments) userProfile.payments = [];
+        isLoggedIn = true; 
+        updateProfileUI(); 
+        authModal.classList.add('hidden');
+        if(detailsPage.classList.contains('active')) renderDetails();
+        
+    } catch (err) { console.error(err); alert("System error during login."); }
 });
 
-// የኢሜል ማረጋገጫ (ተስተካክሏል)
-let expectedVerifyCode = ""; // ትክክለኛው ኮድ የሚቀመጥበት
+// ----------------------------------------------------------------------
+// 2. ትክክለኛ የኢሜይል ማረጋገጫ (Alert ጠፍቶ በ API የተተካ)
+// ----------------------------------------------------------------------
+let expectedVerifyCode = ""; 
 
-registerEmailForm.addEventListener('submit', (e) => { 
+registerEmailForm.addEventListener('submit', async (e) => { 
     e.preventDefault(); 
-    userProfile.email = document.getElementById('register-email').value; 
+    const emailInput = document.getElementById('register-email').value;
     
-    // Random 6-digit ኮድ ማውጣት
+    // ኢሜይሉ ከዚህ በፊት የተመዘገበ መሆኑን ማረጋገጥ
+    const docSnap = await getDoc(doc(db, "users", emailInput));
+    if (docSnap.exists()) {
+        alert(currentLang === 'en' ? "Email already exists. Please login." : "ይህ ኢሜይል ከዚህ በፊት ተመዝግቧል። እባክዎ Login ያድርጉ።");
+        return;
+    }
+    
+    userProfile.email = emailInput; 
     expectedVerifyCode = Math.floor(100000 + Math.random() * 900000).toString();
-    // ሪል የኢሜል ሰርቨር ስለሌለ በ Alert እናሳውቃለን (ለሙከራ)
-    alert("System Notification (Mock Email):\nYour verification code is: " + expectedVerifyCode);
     
-    authStepRegister.classList.add('hidden'); 
-    authStep2.classList.remove('hidden'); 
+    // የ EmailJS API ጥሪ (ትክክለኛ ኢሜል እንዲልክ)
+    // ማሳሰቢያ፡ ይህ እንዲሰራ EmailJS ላይ አካውንት ከፍተህ Service ID, Template ID እና Public Key ማስተካከል ይኖርብሃል
+    try {
+        await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                service_id: 'YOUR_SERVICE_ID', // የራስህን አድርግ
+                template_id: 'YOUR_TEMPLATE_ID', // የራስህን አድርግ
+                user_id: 'YOUR_PUBLIC_KEY', // የራስህን አድርግ
+                template_params: {
+                    to_email: userProfile.email,
+                    verify_code: expectedVerifyCode
+                }
+            })
+        });
+        
+        // Alert ሙሉ በሙሉ ጠፍቷል፤ ወደሚቀጥለው Step 2 ይሻገራል
+        authStepRegister.classList.add('hidden'); 
+        authStep2.classList.remove('hidden'); 
+    } catch (error) {
+        console.error("Email send failed:", error);
+        alert("Network error sending email verification code.");
+    }
 });
 
 document.getElementById('verify-btn').addEventListener('click', () => { 
     const code = document.getElementById('verify-code-input').value; 
-    if(code === expectedVerifyCode) {   // ያስገባው ቁጥር ከወጣው ኮድ ጋር እኩል መሆኑን ያረጋግጣል
+    // ካልተመሳሰለ አያልፍም
+    if(code === expectedVerifyCode && code.length === 6) {   
         document.getElementById('verify-error').classList.add('hidden'); 
         authStep2.classList.add('hidden'); 
         authStep3.classList.remove('hidden'); 
@@ -180,14 +199,49 @@ document.getElementById('verify-btn').addEventListener('click', () => {
     } 
 });
 
-// Dropdowns
-document.querySelectorAll('.custom-select-wrapper').forEach(wrapper => { wrapper.addEventListener('click', function() { this.classList.toggle('open'); }); });
-document.querySelectorAll('.custom-option').forEach(option => { option.addEventListener('click', function() { const wrapper = this.closest('.custom-select-wrapper'); wrapper.querySelector('.custom-select-trigger').textContent = this.textContent; const hi = wrapper.previousElementSibling; if(hi) hi.value = this.getAttribute('data-value'); }); });
+// ----------------------------------------------------------------------
+// 3. Dropdown (የስራ ዘርፍ እና ቦታ) የማንበብ ችግር እርማት
+// ----------------------------------------------------------------------
+document.querySelectorAll('.custom-select-wrapper').forEach(wrapper => { 
+    wrapper.addEventListener('click', function(e) { 
+        e.stopPropagation(); // ሌሎች ክሊኮች እንዳይረብሹ
+        this.classList.toggle('open'); 
+    }); 
+});
+
+document.querySelectorAll('.custom-option').forEach(option => { 
+    option.addEventListener('click', function(e) { 
+        e.stopPropagation();
+        const wrapper = this.closest('.custom-select-wrapper'); 
+        wrapper.querySelector('.custom-select-trigger').textContent = this.textContent; 
+        
+        const selectedValue = this.getAttribute('data-value');
+        
+        // ቀጥታ በ ID ፈልጎ ማስቀመጥ (ለማንኛውም HTML መዋቅር እንዲሰራ)
+        if (wrapper.id === 'location-wrapper' || wrapper.closest('#location-wrapper')) {
+            const locInput = document.getElementById('prof-location');
+            if(locInput) locInput.value = selectedValue;
+            userProfile.location = selectedValue; // ቀጥታ ወደ Object መጨመር
+        }
+        else if (wrapper.id === 'niche-wrapper' || wrapper.closest('#niche-wrapper')) {
+            const nicheInput = document.getElementById('prof-niche');
+            if(nicheInput) nicheInput.value = selectedValue;
+            userProfile.niche = selectedValue; // ቀጥታ ወደ Object መጨመር
+        }
+        else {
+            // Fallback: ከ wrapper ቀጥሎ ያለውን hidden input ለማግኘት
+            const hiddenInput = wrapper.querySelector('input[type="hidden"]') || wrapper.previousElementSibling; 
+            if(hiddenInput) hiddenInput.value = selectedValue; 
+        }
+        
+        wrapper.classList.remove('open');
+    }); 
+});
+
 window.addEventListener('click', function(e) { document.querySelectorAll('.custom-select-wrapper').forEach(wrapper => { if (!wrapper.contains(e.target)) wrapper.classList.remove('open'); }); });
 
-// Avatar Selection Logic
+// Avatar
 const customAvatarUpload = document.getElementById('custom-avatar-upload'); const avatarPreviewImg = document.getElementById('avatar-preview-img');
-
 document.getElementById('avatar-trigger-btn').addEventListener('click', () => customAvatarUpload.click());
 customAvatarUpload.addEventListener('change', (e) => {
     if(e.target.files && e.target.files[0]) {
@@ -196,7 +250,6 @@ customAvatarUpload.addEventListener('change', (e) => {
 });
 document.getElementById('avatar-zoom-slider').addEventListener('input', (e) => { avatarPreviewImg.style.transform = `scale(${e.target.value})`; });
 
-// Function to generate sequential APEX ID
 async function generateApexID() {
     const counterRef = doc(db, "system", "userCounter");
     try {
@@ -210,7 +263,7 @@ async function generateApexID() {
     } catch(e) { console.error("ID Generation error, using fallback", e); return `APEX-${Math.floor(Math.random()*9000)+1000}`; }
 }
 
-// Registration Complete (ፓስወርድ Hash ተደርጎ ሴቭ እንዲሆን ተስተካክሏል)
+// ፕሮፋይል ሲሞላ (የ Dropdown ዳታዎችን በጥብቅ ይቆጣጠራል)
 completeProfileForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     if (!termsCheckbox.checked) return;
@@ -224,13 +277,23 @@ completeProfileForm.addEventListener('submit', async (e) => {
     userProfile.fullName = document.getElementById('prof-fullname').value; 
     userProfile.phone = document.getElementById('prof-phone').value;
     userProfile.businessName = document.getElementById('prof-business').value || 'N/A';
-    userProfile.location = document.getElementById('prof-location').value; 
-    userProfile.niche = document.getElementById('prof-niche').value;
     
-    userProfile.password = await hashPassword(pwd); // Hash the password
+    // በ Object ላይ ከሌለ ዳግም ከ HTML መውሰድ
+    if(!userProfile.location) {
+        const locElement = document.getElementById('prof-location');
+        if(locElement) userProfile.location = locElement.value;
+    }
+    if(!userProfile.niche) {
+        const nicheElement = document.getElementById('prof-niche');
+        if(nicheElement) userProfile.niche = nicheElement.value;
+    }
 
-    if(!userProfile.location || !userProfile.niche) { alert('እባክዎ ቦታ እና የስራ ዘርፍ ይምረጡ!'); return; }
+    if(!userProfile.location || !userProfile.niche || userProfile.location === '' || userProfile.niche === '') { 
+        alert(currentLang === 'en' ? 'Please select your Location and Niche!' : 'እባክዎ ቦታ እና የስራ ዘርፍ ይምረጡ!'); 
+        return; 
+    }
 
+    userProfile.password = await hashPassword(pwd); 
     const newApexId = await generateApexID();
     userProfile.apexId = newApexId;
 
@@ -238,13 +301,12 @@ completeProfileForm.addEventListener('submit', async (e) => {
         await setDoc(doc(db, "users", userProfile.email), {
             fullName: userProfile.fullName, businessName: userProfile.businessName, phone: userProfile.phone, email: userProfile.email, password: userProfile.password,
             location: userProfile.location, niche: userProfile.niche, avatarUrl: userProfile.avatarUrl,
-            contactMethod: 'Telegram', payments: [], registeredAt: new Date(), apexId: newApexId
+            contactMethod: 'Telegram', payments: [], registeredAt: new Date().toISOString(), apexId: newApexId
         });
-    } catch (error) { console.error("Error writing document: ", error); }
+    } catch (error) { console.error("Error writing document: ", error); alert("Database Error"); return;}
 
     isLoggedIn = true; updateProfileUI(); authModal.classList.add('hidden');
     
-    // Show ID Success Modal
     document.getElementById('generated-user-id').textContent = newApexId;
     regSuccessModal.classList.remove('hidden');
 });
@@ -301,7 +363,6 @@ btnOpenSettings.addEventListener('click', () => {
 }); 
 closeSettingsBtn.addEventListener('click', () => settingsModal.classList.add('hidden'));
 
-// Settings Update (የድሮ እና የአዲስ ፓስወርድ ሃሽ ማመሳከሪያ ተስተካክሏል)
 document.getElementById('settings-form').addEventListener('submit', async (e) => { 
     e.preventDefault(); 
     const newPhone = document.getElementById('set-phone').value; 
@@ -333,73 +394,28 @@ btnOpenContracts.addEventListener('click', () => { contractsModal.classList.remo
 
 // Support Chat Logic
 let chatState = { pending: false, messages: [] };
-
 function renderSupportChat() {
     const chatWindow = document.getElementById('chat-window');
     chatWindow.innerHTML = '';
-    
-    if (chatState.messages.length === 0) {
-        chatWindow.innerHTML = `<div class="chat-msg admin-msg bilingual" data-en="Hello! How can we help you today?" data-am="ሰላም! ዛሬ ምን እንርዳዎት?">${currentLang === 'en' ? 'Hello! How can we help you today?' : 'ሰላም! ዛሬ ምን እንርዳዎት?'}</div>`;
-    } else {
-        chatState.messages.forEach(msg => {
-            chatWindow.innerHTML += `<div class="chat-msg ${msg.role === 'admin' ? 'admin-msg' : 'user-msg'}">${msg.text}</div>`;
-        });
-    }
+    if (chatState.messages.length === 0) { chatWindow.innerHTML = `<div class="chat-msg admin-msg bilingual" data-en="Hello! How can we help you today?" data-am="ሰላም! ዛሬ ምን እንርዳዎት?">${currentLang === 'en' ? 'Hello! How can we help you today?' : 'ሰላም! ዛሬ ምን እንርዳዎት?'}</div>`; } else { chatState.messages.forEach(msg => { chatWindow.innerHTML += `<div class="chat-msg ${msg.role === 'admin' ? 'admin-msg' : 'user-msg'}">${msg.text}</div>`; }); }
     chatWindow.scrollTop = chatWindow.scrollHeight;
-
-    document.querySelectorAll('.send-preset-btn').forEach(btn => {
-        btn.disabled = chatState.pending;
-        btn.style.opacity = chatState.pending ? '0.5' : '1';
-        btn.style.cursor = chatState.pending ? 'not-allowed' : 'pointer';
-    });
+    document.querySelectorAll('.send-preset-btn').forEach(btn => { btn.disabled = chatState.pending; btn.style.opacity = chatState.pending ? '0.5' : '1'; btn.style.cursor = chatState.pending ? 'not-allowed' : 'pointer'; });
 }
 
-btnOpenSupport.addEventListener('click', () => { 
-    const stored = localStorage.getItem('apexChatState_' + userProfile.email);
-    if(stored) chatState = JSON.parse(stored);
-    renderSupportChat();
-    supportModal.classList.remove('hidden'); 
-}); 
-closeSupportBtn.addEventListener('click', () => supportModal.classList.add('hidden'));
+btnOpenSupport.addEventListener('click', () => { const stored = localStorage.getItem('apexChatState_' + userProfile.email); if(stored) chatState = JSON.parse(stored); renderSupportChat(); supportModal.classList.remove('hidden'); }); closeSupportBtn.addEventListener('click', () => supportModal.classList.add('hidden'));
 
 document.querySelectorAll('.send-preset-btn').forEach(btn => { 
     btn.addEventListener('click', async function() { 
         if(chatState.pending) return;
-        const msgVal = this.getAttribute('data-val'); 
-        const displayTxt = this.textContent;
-        const dateStr = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-        
-        chatState.messages.push({ role: 'user', text: displayTxt });
-        chatState.pending = true;
-        localStorage.setItem('apexChatState_' + userProfile.email, JSON.stringify(chatState));
-        renderSupportChat();
-
-        try { 
-            await addDoc(collection(db, "support_chats"), { 
-                Customer: userProfile.fullName, 
-                "Issue Type": msgVal, 
-                Time: dateStr, 
-                Status: "Unread",
-                Email: userProfile.email
-            }); 
-        } catch (e) { console.error(e); } 
-
-        setTimeout(() => { 
-            const adminReply = currentLang === 'en' ? 'Received. An agent will check your request and get back to you shortly. You cannot ask another question until this is resolved.' : 'ተቀብለናል! ሪፖርትዎን አይተን በቅርቡ እናገኝዎታለን። ይህ እስኪመለስ ሌላ ጥያቄ መጠየቅ አይችሉም።';
-            chatState.messages.push({ role: 'admin', text: adminReply });
-            localStorage.setItem('apexChatState_' + userProfile.email, JSON.stringify(chatState));
-            renderSupportChat();
-        }, 1000); 
+        const msgVal = this.getAttribute('data-val'); const displayTxt = this.textContent; const dateStr = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        chatState.messages.push({ role: 'user', text: displayTxt }); chatState.pending = true; localStorage.setItem('apexChatState_' + userProfile.email, JSON.stringify(chatState)); renderSupportChat();
+        try { await addDoc(collection(db, "support_chats"), { Customer: userProfile.fullName, "Issue Type": msgVal, Time: dateStr, Status: "Unread", Email: userProfile.email }); } catch (e) { console.error(e); } 
+        setTimeout(() => { const adminReply = currentLang === 'en' ? 'Received. An agent will check your request and get back to you shortly. You cannot ask another question until this is resolved.' : 'ተቀብለናል! ሪፖርትዎን አይተን በቅርቡ እናገኝዎታለን። ይህ እስኪመለስ ሌላ ጥያቄ መጠየቅ አይችሉም።'; chatState.messages.push({ role: 'admin', text: adminReply }); localStorage.setItem('apexChatState_' + userProfile.email, JSON.stringify(chatState)); renderSupportChat(); }, 1000); 
     }); 
 });
+document.getElementById('reset-chat-btn').addEventListener('click', () => { chatState = { pending: false, messages: [] }; localStorage.removeItem('apexChatState_' + userProfile.email); renderSupportChat(); });
 
-document.getElementById('reset-chat-btn').addEventListener('click', () => {
-    chatState = { pending: false, messages: [] };
-    localStorage.removeItem('apexChatState_' + userProfile.email);
-    renderSupportChat();
-});
-
-// General Modal Listeners
+// Modals Setup
 aboutNavBtn.addEventListener('click', () => { aboutModal.classList.remove('hidden'); }); closeAboutBtn.addEventListener('click', () => { aboutModal.classList.add('hidden'); });
 faqNavBtn.addEventListener('click', () => { faqModal.classList.remove('hidden'); }); closeFaqBtn.addEventListener('click', () => { faqModal.classList.add('hidden'); });
 contactBtn.addEventListener('click', () => { contactModal.classList.remove('hidden'); }); closeContactBtn.addEventListener('click', () => { contactModal.classList.add('hidden'); });
@@ -416,45 +432,49 @@ function updateLanguage() {
     if (profilePage.classList.contains('active')) updateProfileUI();
 }
 
-// PDF Download function using html2pdf
 downloadPdfBtn.addEventListener('click', () => {
     const element = document.getElementById('printable-contract');
-    const opt = {
-        margin:       10,
-        filename:     `${userProfile.apexId}_Contract.pdf`,
-        image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2 },
-        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    };
+    const opt = { margin: 10, filename: `${userProfile.apexId}_Contract.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
     html2pdf().set(opt).from(element).save();
 });
 
-// Format Date Helper
-function formatDate(date) {
-    const d = new Date(date);
-    let month = '' + (d.getMonth() + 1), day = '' + d.getDate(), year = d.getFullYear();
-    if (month.length < 2) month = '0' + month; if (day.length < 2) day = '0' + day;
-    return [day, month, year].join('/');
-}
+function formatDate(date) { const d = new Date(date); let month = '' + (d.getMonth() + 1), day = '' + d.getDate(), year = d.getFullYear(); if (month.length < 2) month = '0' + month; if (day.length < 2) day = '0' + day; return [day, month, year].join('/'); }
 
-// Payment Integration & Contract Generation
+// ----------------------------------------------------------------------
+// 4. የ Chapa Error እርማት እና ማረጋገጫዎች
+// ----------------------------------------------------------------------
 async function initiateChapaPayment(amount, description, daysDuration) {
     if (!isLoggedIn) { showAuthModal(); return; }
-    const publicKey = "CHAPUBK_TEST-pmLD19Mp2mTXGP4wYuTo2Mk8V1a63saP"; const txRef = "apex-" + Date.now();
+    
+    // Chapa በትክክል መኖሩን ቼክ ማድረግ
+    if (typeof window.ChapaCheckout === 'undefined') {
+        alert(currentLang === 'en' ? "Payment system is not loaded. Please refresh the page." : "የ Chapa ክፍያ ስርዓት አልተጫነም። እባክዎ ገጹን አድስ (Refresh) ያድርጉ።");
+        return;
+    }
+
+    const publicKey = "CHAPUBK_TEST-pmLD19Mp2mTXGP4wYuTo2Mk8V1a63saP"; 
+    // Tx_ref ላይ ልዩ ቁጥር በማስቀመጥ ተደጋጋሚ ክፍያዎች Error እንዳያመጡ መከላከል
+    const txRef = "apex-" + userProfile.apexId + "-" + Date.now();
+    
     try {
         let checkout = new ChapaCheckout({
             publicKey: publicKey, amount: amount, currency: "ETB", email: userProfile.email, first_name: userProfile.fullName, tx_ref: txRef,
             onSuccessfulPayment: async function () {
                 try {
-                    await updateDoc(doc(db, "users", userProfile.email), { activePackage: description, payments: arrayUnion({ amount: amount, package: description, status: "Success", tx_ref: txRef, date: new Date().toISOString() }) });
-                    userProfile.activePackage = description; if(!userProfile.payments) userProfile.payments = [];
+                    // መረጃው Firebase ላይ በጥንቃቄ ይመዘገባል
+                    await updateDoc(doc(db, "users", userProfile.email), { 
+                        activePackage: description, 
+                        payments: arrayUnion({ amount: amount, package: description, status: "Success", tx_ref: txRef, date: new Date().toISOString() }) 
+                    });
+                    
+                    userProfile.activePackage = description; 
+                    if(!userProfile.payments) userProfile.payments = [];
                     userProfile.payments.push({ amount: amount, package: description, status: "Success", tx_ref: txRef, date: new Date().toISOString() });
                     updateProfileUI();
 
-                    // Generate Auto Contract
                     const startDate = new Date();
                     const endDate = new Date();
-                    const totalDays = daysDuration + 2; // +2 Days for sending data
+                    const totalDays = daysDuration + 2; 
                     endDate.setDate(endDate.getDate() + totalDays);
 
                     document.getElementById('contract-client-name').textContent = userProfile.fullName;
@@ -473,11 +493,11 @@ async function initiateChapaPayment(amount, description, daysDuration) {
             onPaymentFailure: function () { alert(currentLang === 'en' ? "Payment Failed. Please try again." : "ክፍያዎ አልተሳካም። እባክዎ እንደገና ይሞክሩ።"); },
             customization: { title: "APEX Digital Solution", description: description, logo: "https://image2url.com/r2/default/images/1774855725296-f5bbbe32-49ca-472b-b9cf-ac2b456768e3.png" }
         });
-    } catch(err) { console.error("Chapa error:", err); alert("Chapa Checkout JS error."); }
+    } catch(err) { console.error("Chapa error:", err); alert("Chapa Checkout initialization failed."); }
 }
 
 window.handlePayClick = function() {
-    const data = packagesData[currentOpenDetail]; let amount = 0; let description = ""; let days = 30; // Default main package
+    const data = packagesData[currentOpenDetail]; let amount = 0; let description = ""; let days = 30; 
     if (currentOpenDetail === 4) { 
         amount = currentSelectedAddonPrice; 
         description = currentSelectedAddonName; 
