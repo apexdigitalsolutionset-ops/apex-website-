@@ -40,8 +40,7 @@ body {
     color: var(--text-color);
     min-height: 100vh;
     width: 100%;
-    overflow-x: hidden; /* Prevent horizontal scroll */
-    /* overflow: hidden; ተወግዷል ምክንያቱም mobile ላይ scroll እንዳያደርግ የከለከለው እሱ ነው */
+    overflow-x: hidden; 
     position: relative;
     transition: color 0.6s ease;
     -webkit-font-smoothing: antialiased; 
@@ -122,7 +121,7 @@ nav {
 .main-logo { height: clamp(1.6rem, 4vw, 3rem); object-fit: contain; }
 
 .logo-text {
-    font-size: clamp(1.1rem, 3vw, 2.2rem); /* Dsk ተለቅ, Mob አነስ */
+    font-size: clamp(1.1rem, 3vw, 2.2rem); 
     font-weight: 800; 
     letter-spacing: clamp(0.05rem, 0.1vw, 0.15rem);
     color: var(--text-color); 
@@ -131,10 +130,10 @@ nav {
 
 .nav-controls { 
     display: flex; 
-    gap: clamp(0.2rem, 1vw, 1.2rem); 
+    gap: clamp(0.1rem, 0.5vw, 1.2rem); /* Reduced mobile gap to prevent hidden buttons */
     align-items: center; 
     justify-content: flex-end; 
-    flex-wrap: nowrap; /* Mob ላይ Button እንዳይደራረብ ይከላከላል */
+    flex-wrap: nowrap; 
 }
 
 .theme-switch {
@@ -171,8 +170,8 @@ body.light-mode .theme-switch::after { transform: translateX(clamp(1rem, 2vw, 1.
     background: var(--glass-bg); 
     border: 0.06rem solid var(--glass-border);
     color: var(--text-color); 
-    padding: clamp(0.25rem, 1vw, 0.6rem) clamp(0.4rem, 1.5vw, 1.4rem); 
-    font-size: clamp(0.65rem, 1.5vw, 1.1rem); /* Dsk ጎላ ያለ፣ Mob በጣም Clear */
+    padding: clamp(0.2rem, 0.5vw, 0.6rem) clamp(0.3rem, 1vw, 1.4rem); /* Reduced padding */
+    font-size: clamp(0.6rem, 1.5vw, 1.1rem); /* Reduced mobile font size */
     border-radius: 1.5rem;
     cursor: pointer; 
     backdrop-filter: blur(0.6rem);
@@ -204,9 +203,9 @@ body.light-mode .theme-switch::after { transform: translateX(clamp(1rem, 2vw, 1.
     height: 100vh;
     display: flex; 
     flex-direction: column; 
-    justify-content: flex-start; /* Dsk ላይ ያለውን የላይ ክፍተት አጠፋው */
+    justify-content: flex-start; 
     align-items: center;
-    overflow-y: auto; /* Mob ላይ Scroll እንዲያደርግ ፈቀደ */
+    overflow-y: auto; 
     overflow-x: hidden;
     opacity: 0; 
     visibility: hidden; 
@@ -277,8 +276,8 @@ body.light-mode .theme-switch::after { transform: translateX(clamp(1rem, 2vw, 1.
 .global-bottom-controls { position: fixed; bottom: clamp(1rem, 4vw, 2.5rem); right: clamp(1rem, 4vw, 2.5rem); z-index: 999; }
 
 .glass-btn {
-    padding: clamp(0.6rem, 1.5vw, 0.8rem) clamp(1.5rem, 3vw, 2rem); 
-    font-size: clamp(0.8rem, 1.5vw, 1.1rem); 
+    padding: clamp(0.4rem, 1vw, 0.8rem) clamp(1rem, 2vw, 2rem); /* Adjusted for mobile */
+    font-size: clamp(0.7rem, 1.5vw, 1.1rem); /* Reduced mobile font size */
     cursor: pointer;
     background: var(--glass-bg); 
     color: var(--text-color);
@@ -459,10 +458,27 @@ body.light-mode .glass-input { background: rgba(0, 0, 0, 0.05); }
 .dot.red { background: #dc3545; box-shadow: 0 0 0.5rem #dc3545; }
 .dot.green { background: #198754; box-shadow: 0 0 0.5rem #198754; }
 
-.action-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(clamp(12rem, 40vw, 14rem), 1fr)); gap: 1.25rem; }
+.action-grid { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fit, minmax(clamp(14rem, 45vw, 16rem), 1fr)); /* Enlarged layout */
+    gap: 1.25rem; 
+    margin-top: clamp(1.5rem, 4vw, 3rem); /* Moved down */
+}
 .action-card { padding: 1.2rem; text-align: center; text-decoration: none; color: var(--text-color); cursor: pointer; transition: transform 0.3s; }
 .action-card:hover { transform: translateY(-0.3rem); box-shadow: 0 0.6rem 2rem rgba(0,0,0,0.3); }
-.action-icon { font-size: clamp(1.8rem, 5vw, 2.8rem); margin-bottom: 1rem; display: flex; justify-content: center; color: var(--accent); }
+
+/* Removed background circles and ensured clean icons with brand color */
+.action-icon { 
+    font-size: clamp(1.8rem, 5vw, 2.8rem); 
+    margin-bottom: 1rem; 
+    display: flex; 
+    justify-content: center; 
+    color: var(--accent); 
+    background: transparent !important; 
+    border: none !important; 
+    border-radius: 0 !important; 
+    box-shadow: none !important;
+}
 
 .action-card h4 { font-size: clamp(0.95rem, 2.5vw, 1.3rem); margin-bottom: 0.5rem; color: var(--accent); }
 .action-card p { font-size: clamp(0.75rem, 2vw, 0.9rem); opacity: 0.8; }
@@ -492,10 +508,11 @@ body.light-mode .glass-input { background: rgba(0, 0, 0, 0.05); }
 
 .cards-grid { 
     display: grid; 
-    grid-template-columns: repeat(auto-fit, minmax(clamp(16rem, 80vw, 20rem), 1fr)); /* Dsk ትንሽ ሰፋ Mob ልክ */
+    grid-template-columns: repeat(auto-fit, minmax(clamp(18rem, 85vw, 22rem), 1fr)); /* Enlarged width */
     gap: clamp(1rem, 3vw, 2.5rem); 
     width: 90%; 
     max-width: 75rem; 
+    margin-top: clamp(2rem, 5vw, 4rem); /* Moved down from top */
 }
 
 .glass-card { 
@@ -509,7 +526,7 @@ body.light-mode .glass-input { background: rgba(0, 0, 0, 0.05); }
     gap: 0.6rem; 
     align-items: center; 
     text-align: center; 
-    padding: clamp(1.2rem, 4vw, 2.5rem); /* Mob ትንሽ፣ Dsk ትልቅ */
+    padding: clamp(1.2rem, 4vw, 2.5rem); 
     position: relative; 
     cursor: pointer; 
     transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s; 
