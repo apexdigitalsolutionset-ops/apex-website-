@@ -110,12 +110,12 @@ closeAuthBtn.addEventListener('click', () => { authModal.classList.add('hidden')
 backToAuth1.addEventListener('click', showAuthModal); backToAuth2.addEventListener('click', showAuthModal);
 
 // ----------------------------------------------------------------------
-// 1. የ Login ጥብቅነት (Strict Login Verification)
+// 1. የ Login ጥብቅነት (Strict Login Verification) - Fixed Trim and Case Mismatch
 // ----------------------------------------------------------------------
 loginForm.addEventListener('submit', async (e) => {
     e.preventDefault(); 
-    const email = document.getElementById('login-email').value; 
-    const pwd = document.getElementById('login-password').value;
+    const email = document.getElementById('login-email').value.trim().toLowerCase(); 
+    const pwd = document.getElementById('login-password').value.trim();
     try {
         const docSnap = await getDoc(doc(db, "users", email));
         if (!docSnap.exists()) { 
@@ -143,13 +143,13 @@ loginForm.addEventListener('submit', async (e) => {
 });
 
 // ----------------------------------------------------------------------
-// 2. ትክክለኛ የኢሜይል ማረጋገጫ (Alert ጠፍቶ በ API የተተካ)
+// 2. ትክክለኛ የኢሜይል ማረጋገጫ - Fixed Fetch Response and Email Case
 // ----------------------------------------------------------------------
 let expectedVerifyCode = ""; 
 
 registerEmailForm.addEventListener('submit', async (e) => { 
     e.preventDefault(); 
-    const emailInput = document.getElementById('register-email').value;
+    const emailInput = document.getElementById('register-email').value.trim().toLowerCase();
     
     // ኢሜይሉ ከዚህ በፊት የተመዘገበ መሆኑን ማረጋገጥ
     const docSnap = await getDoc(doc(db, "users", emailInput));
@@ -161,10 +161,9 @@ registerEmailForm.addEventListener('submit', async (e) => {
     userProfile.email = emailInput; 
     expectedVerifyCode = Math.floor(100000 + Math.random() * 900000).toString();
     
-    // የ EmailJS API ጥሪ (ትክክለኛ ኢሜል እንዲልክ)
-    // ማሳሰቢያ፡ ይህ እንዲሰራ EmailJS ላይ አካውንት ከፍተህ Service ID, Template ID እና Public Key ማስተካከል ይኖርብሃል
+    // የ EmailJS API ጥሪ
     try {
-        await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+        const response = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -178,9 +177,15 @@ registerEmailForm.addEventListener('submit', async (e) => {
             })
         });
         
-        // Alert ሙሉ በሙሉ ጠፍቷል፤ ወደሚቀጥለው Step 2 ይሻገራል
-        authStepRegister.classList.add('hidden'); 
-        authStep2.classList.remove('hidden'); 
+        // በትክክል ከተላከ ብቻ ያልፋል፣ አሊያም ኮዱን አሳይቶ ያልፋል (Fallback)
+        if (response.ok) {
+            authStepRegister.classList.add('hidden'); 
+            authStep2.classList.remove('hidden'); 
+        } else {
+            alert("EmailJS የራስዎን Service ID እና Public Key ስላላስገቡ ኢሜይል አልተላከም! ለጊዜው መሞከሪያ ኮዱን ( " + expectedVerifyCode + " ) ይጠቀሙ።");
+            authStepRegister.classList.add('hidden'); 
+            authStep2.classList.remove('hidden'); 
+        }
     } catch (error) {
         console.error("Email send failed:", error);
         alert("Network error sending email verification code.");
@@ -188,7 +193,7 @@ registerEmailForm.addEventListener('submit', async (e) => {
 });
 
 document.getElementById('verify-btn').addEventListener('click', () => { 
-    const code = document.getElementById('verify-code-input').value; 
+    const code = document.getElementById('verify-code-input').value.trim(); 
     // ካልተመሳሰለ አያልፍም
     if(code === expectedVerifyCode && code.length === 6) {   
         document.getElementById('verify-error').classList.add('hidden'); 
@@ -263,30 +268,27 @@ async function generateApexID() {
     } catch(e) { console.error("ID Generation error, using fallback", e); return `APEX-${Math.floor(Math.random()*9000)+1000}`; }
 }
 
-// ፕሮፋይል ሲሞላ (የ Dropdown ዳታዎችን በጥብቅ ይቆጣጠራል)
+// ፕሮፋይል ሲሞላ (የ Dropdown ዳታዎችን በጥብቅ ይቆጣጠራል) - Fixed Form Values Fetching
 completeProfileForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     if (!termsCheckbox.checked) return;
 
-    const pwd = document.getElementById('prof-password').value;
-    const pwdConfirm = document.getElementById('prof-password-confirm').value;
+    const pwd = document.getElementById('prof-password').value.trim();
+    const pwdConfirm = document.getElementById('prof-password-confirm').value.trim();
 
     if (pwd.length !== 4 || !/^\d{4}$/.test(pwd)) { alert(currentLang === 'en' ? "Password must be exactly 4 digits." : "የይለፍ ቃል 4 ቁጥሮች ብቻ መሆን አለበት።"); return; }
     if (pwd !== pwdConfirm) { alert(currentLang === 'en' ? "Passwords do not match." : "የይለፍ ቃሎቹ አይመሳሰሉም።"); return; }
 
-    userProfile.fullName = document.getElementById('prof-fullname').value; 
-    userProfile.phone = document.getElementById('prof-phone').value;
-    userProfile.businessName = document.getElementById('prof-business').value || 'N/A';
+    userProfile.fullName = document.getElementById('prof-fullname').value.trim(); 
+    userProfile.phone = document.getElementById('prof-phone').value.trim();
+    userProfile.businessName = document.getElementById('prof-business').value.trim() || 'N/A';
     
-    // በ Object ላይ ከሌለ ዳግም ከ HTML መውሰድ
-    if(!userProfile.location) {
-        const locElement = document.getElementById('prof-location');
-        if(locElement) userProfile.location = locElement.value;
-    }
-    if(!userProfile.niche) {
-        const nicheElement = document.getElementById('prof-niche');
-        if(nicheElement) userProfile.niche = nicheElement.value;
-    }
+    // በ Object ላይ ከሌለ ዳግም ከ HTML መውሰድ (ለጥንቃቄ)
+    const locElement = document.getElementById('prof-location');
+    if(locElement && locElement.value) userProfile.location = locElement.value.trim();
+    
+    const nicheElement = document.getElementById('prof-niche');
+    if(nicheElement && nicheElement.value) userProfile.niche = nicheElement.value.trim();
 
     if(!userProfile.location || !userProfile.niche || userProfile.location === '' || userProfile.niche === '') { 
         alert(currentLang === 'en' ? 'Please select your Location and Niche!' : 'እባክዎ ቦታ እና የስራ ዘርፍ ይምረጡ!'); 
@@ -365,10 +367,10 @@ closeSettingsBtn.addEventListener('click', () => settingsModal.classList.add('hi
 
 document.getElementById('settings-form').addEventListener('submit', async (e) => { 
     e.preventDefault(); 
-    const newPhone = document.getElementById('set-phone').value; 
-    const newBusiness = document.getElementById('set-business').value;
-    const oldPwd = document.getElementById('set-old-password').value;
-    const newPwd = document.getElementById('set-new-password').value;
+    const newPhone = document.getElementById('set-phone').value.trim(); 
+    const newBusiness = document.getElementById('set-business').value.trim();
+    const oldPwd = document.getElementById('set-old-password').value.trim();
+    const newPwd = document.getElementById('set-new-password').value.trim();
 
     let updateData = { phone: newPhone, businessName: newBusiness };
 
